@@ -44,8 +44,8 @@ Sepolia, and a P2WSH script per swap on Bitcoin testnet3.
 - Each offer has a response window W, picked by the maker: 1, 6, 12 or 24 h. After the taker
   locks, the maker has W to come back and lock. The maker's lock runs L, the pair's shortest
   window (1 h; 6 h with BTC), whatever W is: the taker then has L to reveal (less a 10 min
-  margin; 3 h with BTC), never the whole window, so a taker cannot hold a free option on the
-  price for a day. The taker's lock runs W + L + 40 min (2 h with BTC), so the maker's side
+  margin; 3 h with BTC), never the whole window. That limits how long a taker holds a free
+  option on the price: it is shorter, not gone. The taker's lock runs W + L + 40 min (2 h with BTC), so the maker's side
   keeps that margin after a reveal. A page loaded before L existed locks the taker for 2W + 40
   min; the book still takes that. Offers made before windows existed keep 2 h and 1 h.
 - The server never holds funds or the parties' keys. Its watcher only sends transactions

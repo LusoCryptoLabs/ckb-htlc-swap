@@ -1,4 +1,4 @@
-# ckb-usdc-htlc-swap
+# ckb-htlc-swap
 
 Atomic swap between CKB and USDC on an EVM chain, or BTC on Bitcoin. Both legs lock funds
 under the same SHA-256 hashlock. Revealing the 32-byte secret to take one leg makes the other
@@ -14,6 +14,9 @@ leg redeemable.
 - Bitcoin leg: a P2WSH script per swap, nothing deployed (`swap/btc.mjs`).
 
 This is a prototype running on testnet. Anyone who intends to use it must weigh every security question needed to keep all of its functions and funds safe: this prototype does not guarantee that.
+
+It is a proof of concept. We are not taking it further ourselves for now; it is open so others can
+use it as a base.
 
 ## htlc-lock
 
