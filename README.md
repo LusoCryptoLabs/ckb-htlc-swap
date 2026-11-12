@@ -53,10 +53,9 @@ tests show which cases it accepts that htlc-lock refuses. It is never deployed f
 
 ### Reproducible build
 
-The lock is pure Rust with no C dependency. A plain `cargo build` embeds the builder's cargo
-home path (`/root/.cargo/...`) in the binary, so it reproduces only on the same machine and
-user. `reproducible/` builds it in a container pinned by digest instead, so any machine gets the
-same bytes:
+The binary a plain `cargo build` gives depends on the machine: its C compiler for RISC-V and
+where cargo keeps its files. `reproducible/` builds the lock in a container pinned by digest
+instead, so any machine gets the same bytes:
 
 ```
 bash reproducible/reproduce.sh   # builds in docker, checks the sha256, prints MATCH
