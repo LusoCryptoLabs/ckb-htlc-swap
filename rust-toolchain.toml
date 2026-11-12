@@ -1,0 +1,4 @@
+# Pinned so a rebuild reproduces the deployed lock binary.
+[toolchain]
+channel = "1.96.0"
+targets = ["riscv64imac-unknown-none-elf"]

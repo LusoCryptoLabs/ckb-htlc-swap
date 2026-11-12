@@ -1,0 +1,14 @@
+# CKB-VM tests for htlc-lock (host target, ckb-testtool). Build the binaries first: ../build.sh
+[package]
+name = "htlc-lock-tests"
+version = "0.0.0"
+edition = "2021"
+
+[lib]
+path = "src/lib.rs"
+
+[dependencies]
+ckb-testtool = "0.13"
+sha2 = "0.10"
+
+[workspace]

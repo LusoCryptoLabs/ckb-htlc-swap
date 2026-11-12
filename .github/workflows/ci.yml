@@ -1,0 +1,42 @@
+name: ci
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  lock:
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@v4
+      - name: Toolchain (rust-toolchain.toml)
+        run: rustup toolchain install 1.96.0 --profile minimal --target riscv64imac-unknown-none-elf
+      - name: Build both locks
+        run: bash build.sh
+      - name: CKB-VM tests
+        run: bash test.sh
+      - name: Every guard has a test that catches it
+        run: python3 scripts/mutants.py
+
+  app:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+      - name: Order book
+        working-directory: app
+        run: |
+          npm clean-install
+          npm test
+          npm run build
+          for f in server/server.mjs scripts/*.mjs; do node --check "$f"; done
+      - name: Swap scripts
+        working-directory: swap
+        run: |
+          npm clean-install
+          for f in *.mjs; do node --check "$f"; done

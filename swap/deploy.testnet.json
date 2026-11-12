@@ -1,0 +1,9 @@
+{
+  "network": "testnet",
+  "txHash": "0x29379a658315c050bf4612dd671f986afc2c133ad2c6e14ef7e67ac9d6ae82b2",
+  "index": 0,
+  "dataHash": "0x2631477be216114391a8f0d2158c0f2ae33849ab20d692b49076ff5900d87932",
+  "hashType": "data2",
+  "bytes": 30888,
+  "binarySha256": "203b50961edf3c9c56cae8dbad8c0d1e9ab3a3073ceb38082dbf29fb2c497c17"
+}

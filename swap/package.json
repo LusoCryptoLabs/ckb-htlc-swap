@@ -1,0 +1,13 @@
+{
+  "name": "ckb-usdc-htlc-swap-scripts",
+  "private": true,
+  "type": "module",
+  "description": "Testnet scripts for a CKB <-> USDC hashlock swap (CKB lock + Train on Base Sepolia)",
+  "dependencies": {
+    "@ckb-ccc/core": "^1.23.0",
+    "bitcoinjs-lib": "^6.1.7",
+    "ecpair": "^3.0.0",
+    "ethers": "^6.17.0",
+    "tiny-secp256k1": "^2.2.3"
+  }
+}

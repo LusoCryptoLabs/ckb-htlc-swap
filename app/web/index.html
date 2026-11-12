@@ -1,0 +1,49 @@
+<!doctype html>
+<html lang="pt">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Livro de swaps CKB ↔ USDC, ETH e BTC</title>
+  <meta name="description" content="Troca CKB por USDC, ETH ou Bitcoin com outras pessoas, sem intermediário, na testnet. O dinheiro de cada lado fica num cofre até a troca acontecer, ou volta.">
+  <link rel="icon" href="/icon.svg" type="image/svg+xml">
+  <!-- The two faces are served from here and preloaded, so the first paint already has them (a late
+       font reflowed the header). Both are SIL OFL 1.1: public/fonts/OFL-*.txt. -->
+  <link rel="preload" href="/fonts/vt323-400.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="preload" href="/fonts/space-mono-400.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="preload" href="/fonts/space-mono-700.woff2" as="font" type="font/woff2" crossorigin>
+  <!-- The tab that opens, known before the first paint: on a phone, Trocar shows the headline in the
+       ticker's place, and the page must not move when main.js arrives (main.js keeps it in step). -->
+  <script>document.documentElement.dataset.tab = location.hash === "#book" ? "book" : /^#(mine|fill-|offer-|swap-)/.test(location.hash) ? "mine" : "swap";</script>
+  <link rel="stylesheet" href="./src/style.css">
+</head>
+<body>
+  <div class="bg" aria-hidden="true"></div>
+  <div class="app">
+    <header class="bar">
+      <a class="brand" href="#swap">
+        <svg viewBox="0 0 32 32" width="28" height="28" aria-hidden="true"><path d="M16 2l12 7v14l-12 7L4 23V9z" class="brand-cell"/><path d="M9.5 13h12l-3-3M22.5 19h-12l3 3" class="brand-arrows" fill="none" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        <span class="bt"><span class="bn">Livro de swaps<span class="caret" aria-hidden="true">_</span></span><small><span class="pill">testnet</span></small></span>
+      </a>
+      <a class="deskmine" id="deskMine" href="#mine">As minhas</a>
+      <button id="connect" class="connect unset" type="button">Ligar carteira</button>
+    </header>
+    <div class="ticker" data-marquee aria-hidden="true"><div class="track" id="tickerTrack"><span>CKB <b class="sktext">$0,0009400</b></span><span>ETH <b class="sktext">$2 100</b></span><span>BTC <b class="sktext">$74 900</b></span></div></div>
+    <nav class="tabs" aria-label="Secções">
+      <a href="#swap" data-tab="swap"><i aria-hidden="true">⇅</i><span>Trocar</span></a>
+      <a href="#book" data-tab="book"><i aria-hidden="true">≡</i><span>Livro</span></a>
+      <a href="#mine" data-tab="mine" id="tab-mine"><i aria-hidden="true">◷</i><span>As minhas</span></a>
+    </nav>
+    <section id="wallet" class="wallet" hidden></section>
+    <div id="notice" class="notice" role="status" hidden></div>
+    <div id="banner"></div>
+    <main id="view"></main>
+    <footer class="foot later">
+      <p id="foot-about">Versão de teste: as moedas não valem dinheiro.</p>
+      <p id="foot-by">Livro de swaps, by <a href="https://lusocryptolabs.com">LusoCryptoLabs</a>.</p>
+      <p class="langs" id="langs" role="group" aria-label="Língua"><button type="button" data-lang="pt" lang="pt" aria-label="Português" aria-pressed="false">PT</button><i aria-hidden="true">·</i><button type="button" data-lang="en" lang="en" aria-label="English" aria-pressed="false">EN</button><i aria-hidden="true">·</i><button type="button" data-lang="zh" lang="zh-CN" aria-label="中文" aria-pressed="false">中文</button></p>
+    </footer>
+  </div>
+  <div id="modal" class="modal" hidden></div>
+  <script type="module" src="./src/main.js"></script>
+</body>
+</html>

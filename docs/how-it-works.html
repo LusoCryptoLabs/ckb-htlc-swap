@@ -1,0 +1,275 @@
+<!doctype html><html lang="pt"><head><title>Swap CKB ↔ USDC</title><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"><style>:root{color-scheme:light}body{margin:0}[hidden]{display:none!important}</style></head><body><title>Swap CKB ↔ USDC</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@75..125,500..800&family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&display=swap">
+<style>
+/* Layout: one reading column, diagrams wider and scrollable on phones; chains keep fixed colours (CKB green, Base blue), the secret is amber everywhere. */
+:root {
+  --bg: #f3f6f5; --surface: #ffffff; --ink: #14201c; --muted: #56675f; --line: #c6d1cc;
+  --ckb: #0b7458; --ckb-soft: #d9efe6; --base: #2a52c4; --base-soft: #e1e7fb;
+  --secret: #9c520a; --secret-soft: #fbead6; --ok: #0b7458; --no: #a3361f; --no-soft: #f8e1db;
+  --f-display: "Archivo", "Arial Narrow", system-ui, sans-serif;
+  --f-body: "IBM Plex Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --f-mono: "IBM Plex Mono", ui-monospace, "Cascadia Mono", Consolas, monospace;
+}
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+  --bg: #0f1412; --surface: #161d1a; --ink: #e2ebe7; --muted: #9aaca4; --line: #33413b;
+  --ckb: #43c99f; --ckb-soft: #133a2f; --base: #86a2ff; --base-soft: #1c2546;
+  --secret: #f2a64c; --secret-soft: #3b2a14; --ok: #43c99f; --no: #f08a72; --no-soft: #3d1d16; color-scheme: dark; } }
+:root[data-theme="dark"] {
+  --bg: #0f1412; --surface: #161d1a; --ink: #e2ebe7; --muted: #9aaca4; --line: #33413b;
+  --ckb: #43c99f; --ckb-soft: #133a2f; --base: #86a2ff; --base-soft: #1c2546;
+  --secret: #f2a64c; --secret-soft: #3b2a14; --ok: #43c99f; --no: #f08a72; --no-soft: #3d1d16; color-scheme: dark; }
+body { background: var(--bg); color: var(--ink); font: 16px/1.6 var(--f-body); }
+.wrap { max-width: 1040px; margin: 0 auto; padding-block: 40px 72px; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); display: grid; gap: 56px; }
+.prose { max-width: 68ch; }
+h1, h2 { font-family: var(--f-display); font-stretch: 85%; line-height: 1.1; text-wrap: balance; margin: 0; }
+h1 { font-size: clamp(2.2rem, 6vw, 3.6rem); font-weight: 800; letter-spacing: -0.01em; }
+h2 { font-size: clamp(1.4rem, 3.2vw, 1.9rem); font-weight: 700; }
+.eyebrow { font: 500 0.78rem/1 var(--f-mono); text-transform: uppercase; letter-spacing: 0.08em; color: var(--muted); margin: 0 0 14px; }
+.lede { font-size: 1.15rem; margin: 18px 0 0; }
+.lede b { color: var(--secret); font-weight: 600; }
+section { display: grid; gap: 18px; }
+section > p, section > ul, section > ol { margin: 0; max-width: 68ch; }
+.parts { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 12px; margin-top: 28px; }
+.part { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 14px 16px; min-width: 0; }
+.part h3 { margin: 0 0 4px; font: 600 0.95rem/1.3 var(--f-body); }
+.part p { margin: 0; color: var(--muted); font-size: 0.92rem; }
+.part.ckb { border-top: 4px solid var(--ckb); } .part.base { border-top: 4px solid var(--base); } .part.sec { border-top: 4px solid var(--secret); }
+.tabs { display: flex; gap: 6px; flex-wrap: wrap; }
+.tabs button { font: 500 0.92rem var(--f-body); color: var(--ink); background: var(--surface); border: 1px solid var(--line); border-radius: 999px; padding: 7px 16px; cursor: pointer; }
+.tabs button[aria-pressed="true"] { background: var(--ink); color: var(--bg); border-color: var(--ink); }
+.tabs button:focus-visible { outline: 2px solid var(--secret); outline-offset: 2px; }
+figure { margin: 0; display: grid; gap: 10px; }
+.scroll { overflow-x: auto; background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 12px; }
+.dia { display: block; width: 100%; min-width: 760px; height: auto; color: var(--ink); }
+figcaption { color: var(--muted); font-size: 0.93rem; max-width: 72ch; }
+.steps { margin: 0; padding-left: 1.4em; display: grid; gap: 4px; max-width: 72ch; }
+details { max-width: 72ch; } summary { cursor: pointer; color: var(--muted); font-size: 0.93rem; }
+/* svg parts */
+.dia text { font-family: var(--f-body); fill: var(--ink); }
+.t-name { font: 600 15px var(--f-body); }
+.t-sub { font-size: 12.5px; fill: var(--muted) !important; }
+.t-dark { fill: var(--ink) !important; }
+.t-lab { font-size: 13.5px; font-weight: 500; }
+.t-lab-s { fill: var(--secret) !important; font-weight: 600; }
+.t-n { font-family: var(--f-mono); font-weight: 600; }
+.t-mono { font: 12.5px var(--f-mono); fill: var(--ink); }
+.t-tag { font: 600 12px var(--f-mono); fill: var(--secret) !important; }
+.t-ckb { fill: var(--ckb) !important; } .t-base { fill: var(--base) !important; } .t-ok { fill: var(--ok) !important; font-weight: 600; }
+.t-bar { font: 600 11px var(--f-mono); fill: var(--muted) !important; letter-spacing: 0.04em; }
+.halo { paint-order: stroke; stroke: var(--surface); stroke-width: 6px; stroke-linejoin: round; }
+.hd { fill: var(--bg); stroke: var(--line); stroke-width: 1.2; }
+.hd-ckb { fill: var(--ckb-soft); stroke: var(--ckb); } .hd-base { fill: var(--base-soft); stroke: var(--base); }
+.life { stroke: var(--line); stroke-width: 1.4; stroke-dasharray: 4 5; }
+.m { stroke: var(--ink); stroke-width: 1.6; fill: none; }
+.m-read { stroke-dasharray: 6 5; stroke: var(--muted); }
+.m-secret { stroke: var(--secret); stroke-width: 2.2; }
+.m-secret.m-read { stroke: var(--secret); }
+.ah { fill: var(--ink); } .ah-s { fill: var(--secret); }
+.note { fill: var(--secret-soft); stroke: var(--secret); stroke-width: 1.4; }
+.bar { stroke-width: 1.2; } .bar-base { fill: var(--base-soft); stroke: var(--base); } .bar-ckb { fill: var(--ckb-soft); stroke: var(--ckb); }
+.res { fill: var(--surface); stroke: var(--ink); stroke-width: 1.4; }
+.path { fill: var(--surface); stroke: var(--ink); stroke-width: 1.4; }
+.path-s { fill: var(--secret-soft); stroke: var(--secret); stroke-width: 1.6; }
+.axis { stroke: var(--muted); stroke-width: 1.2; }
+.dl { stroke-width: 1.6; stroke-dasharray: 3 4; } .dl-ckb { stroke: var(--ckb); } .dl-base { stroke: var(--base); }
+.br { fill: none; stroke-width: 1.6; } .br-s { stroke: var(--secret); }
+/* tables and lists */
+.tw { overflow-x: auto; }
+table { border-collapse: collapse; width: 100%; min-width: 520px; font-size: 0.95rem; background: var(--surface); border: 1px solid var(--line); border-radius: 10px; overflow: hidden; }
+th, td { text-align: left; vertical-align: top; padding: 10px 14px; border-bottom: 1px solid var(--line); }
+th { font: 600 0.78rem var(--f-mono); text-transform: uppercase; letter-spacing: 0.06em; color: var(--muted); }
+tbody tr:last-child td { border-bottom: 0; }
+tbody tr.warn td { background: var(--no-soft); }
+code { font: 0.85em var(--f-mono); color: var(--muted); }
+.pill { display: inline-block; font: 600 0.78rem var(--f-mono); padding: 2px 9px; border-radius: 999px; }
+.pill-no { background: var(--no-soft); color: var(--no); } .pill-ok { background: var(--ckb-soft); color: var(--ok); }
+.proof { list-style: none; margin: 0; padding: 0; display: grid; gap: 0; background: var(--surface); border: 1px solid var(--line); border-radius: 10px; max-width: none; }
+.proof li { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 6px 16px; padding: 10px 14px; border-bottom: 1px solid var(--line); }
+.proof li:last-child { border-bottom: 0; }
+.proof li span { min-width: 0; }
+a { color: var(--base); text-underline-offset: 2px; }
+.stats { display: flex; flex-wrap: wrap; gap: 10px 28px; margin: 0; padding: 0; list-style: none; }
+.stats li { display: grid; }
+.stats b { font: 700 1.6rem/1.1 var(--f-display); font-stretch: 85%; font-variant-numeric: tabular-nums; }
+.stats span { color: var(--muted); font-size: 0.88rem; }
+.todo { display: grid; gap: 10px; margin: 0; padding: 0; list-style: none; max-width: 72ch; }
+.todo li { background: var(--surface); border: 1px solid var(--line); border-left: 4px solid var(--secret); border-radius: 8px; padding: 10px 14px; }
+.todo b { display: block; }
+@media (prefers-reduced-motion: reduce) { * { scroll-behavior: auto; } }
+</style>
+
+<main class="wrap">
+  <header class="prose">
+    <p class="eyebrow">Prova em testnet · 9 de Novembro de 2026</p>
+    <h1>Swap CKB ↔ USDC</h1>
+    <p class="lede">Duas pessoas trocam CKB por USDC sem intermediário. Cada uma tranca o que tem num contrato na sua chain, e <b>o mesmo segredo abre os dois</b>. Quem revela o segredo para receber de um lado está a entregar à outra pessoa a chave do outro lado.</p>
+    <div class="parts">
+      <div class="part sec"><h3>O segredo s</h3><p>32 bytes ao acaso. Os dois contratos guardam só H = SHA256(s) e abrem a quem mostrar s.</p></div>
+      <div class="part ckb"><h3>htlc-lock, na CKB</h3><p>O lock novo que escrevemos. Guarda os CKB até alguém mostrar s, ou até ao prazo.</p></div>
+      <div class="part base"><h3>Train, na Base</h3><p>Contrato que já existia e que qualquer pessoa pode usar. Faz o mesmo com os USDC.</p></div>
+    </div>
+  </header>
+
+  <section>
+    <h2>O fluxo</h2>
+    <p>Quem escolhe o segredo tranca primeiro. Funciona nas duas ordens.</p>
+    <div class="tabs" role="group" aria-label="Quem começa">
+      <button type="button" id="tab-usdc" aria-pressed="true" data-show="fig-usdc">A Alice começa (tem USDC)</button>
+      <button type="button" id="tab-ckb" aria-pressed="false" data-show="fig-ckb">O Bob começa (tem CKB)</button>
+    </div>
+    <figure id="fig-usdc">
+      <div class="scroll"><svg class="dia" viewBox="0 0 980 640" role="img" aria-label="Sequência quando a Alice começa: a Alice escolhe o segredo e tranca USDC no Train com prazo de 2 horas; o Bob confirma e tranca CKB no htlc-lock com prazo de 1 hora; a Alice levanta os CKB revelando o segredo; o vigia do Bob lê o segredo e levanta os USDC."><defs><marker id="ah" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse"><path class="ah" d="M0,0 L10,5 L0,10 z"/></marker><marker id="ah-s" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse"><path class="ah-s" d="M0,0 L10,5 L0,10 z"/></marker></defs>
+<rect class="hd hd-who" x="25" y="14" width="170" height="54" rx="8"/>
+<text class="t-name" x="110" y="37" text-anchor="middle">Alice</text>
+<text class="t-sub" x="110" y="56" text-anchor="middle">tem USDC, quer CKB</text>
+<rect class="hd hd-base" x="295" y="14" width="170" height="54" rx="8"/>
+<text class="t-name" x="380" y="37" text-anchor="middle">Train</text>
+<text class="t-sub" x="380" y="56" text-anchor="middle">contrato na Base</text>
+<rect class="hd hd-ckb" x="555" y="14" width="170" height="54" rx="8"/>
+<text class="t-name" x="640" y="37" text-anchor="middle">htlc-lock</text>
+<text class="t-sub" x="640" y="56" text-anchor="middle">célula na CKB</text>
+<rect class="hd hd-who" x="785" y="14" width="170" height="54" rx="8"/>
+<text class="t-name" x="870" y="37" text-anchor="middle">Bob</text>
+<text class="t-sub" x="870" y="56" text-anchor="middle">tem CKB, quer USDC</text>
+<line class="life" x1="110" y1="70" x2="110" y2="570"/>
+<line class="life" x1="380" y1="70" x2="380" y2="570"/>
+<line class="life" x1="640" y1="70" x2="640" y2="570"/>
+<line class="life" x1="870" y1="70" x2="870" y2="570"/>
+<rect class="bar bar-base" x="373" y="178" width="14" height="362" rx="3"/><text class="t-bar" x="366" y="359.0" text-anchor="end" transform="rotate(-90 366 359.0)">USDC presos</text>
+<rect class="bar bar-ckb" x="633" y="300" width="14" height="124" rx="3"/><text class="t-bar" x="626" y="362.0" text-anchor="end" transform="rotate(-90 626 362.0)">CKB presos</text>
+<rect class="note" x="15" y="88" width="190" height="50" rx="8"/><text class="t-lab t-lab-s" x="110" y="108" text-anchor="middle"><tspan class="t-n">1</tspan>  Escolhe o segredo s</text><text class="t-mono" x="110" y="127" text-anchor="middle">H = SHA256(s)</text>
+<line class="m" x1="120" y1="178" x2="368" y2="178" marker-end="url(#ah)"/>
+<text class="t-lab halo" x="245.0" y="169" text-anchor="middle"><tspan class="t-n">2</tspan>  Tranca 5 USDC sob H</text>
+<text class="t-sub halo" x="245.0" y="195" text-anchor="middle">paga ao Bob com s · volta à Alice após 2 h</text>
+<line class="m m-read" x1="860" y1="240" x2="392" y2="240" marker-end="url(#ah)"/>
+<text class="t-lab halo" x="625.0" y="231" text-anchor="middle"><tspan class="t-n">3</tspan>  Lê e confirma o lock</text>
+<text class="t-sub halo" x="625.0" y="257" text-anchor="middle">valor, destino Bob, prazo 2 h</text>
+<line class="m" x1="860" y1="300" x2="652" y2="300" marker-end="url(#ah)"/>
+<text class="t-lab halo" x="755.0" y="291" text-anchor="middle"><tspan class="t-n">4</tspan>  Tranca 500 CKB sob H</text>
+<text class="t-sub halo" x="755.0" y="317" text-anchor="middle">paga à Alice com s · volta ao Bob após 1 h</text>
+<line class="m m-read" x1="120" y1="362" x2="628" y2="362" marker-end="url(#ah)"/>
+<text class="t-lab halo" x="375.0" y="353" text-anchor="middle"><tspan class="t-n">5</tspan>  Lê e confirma a célula</text>
+<text class="t-sub halo" x="375.0" y="379" text-anchor="middle">valor, destino Alice, prazo 1 h</text>
+<line class="m m-secret" x1="120" y1="424" x2="628" y2="424" marker-end="url(#ah-s)"/>
+<text class="t-lab t-lab-s halo" x="375.0" y="415" text-anchor="middle"><tspan class="t-n">6</tspan>  Levanta 500 CKB revelando s</text>
+<text class="t-sub halo" x="375.0" y="441" text-anchor="middle">sem assinatura: o segredo é a chave</text>
+<line class="m m-secret m-read" x1="650" y1="486" x2="858" y2="486" marker-end="url(#ah-s)"/>
+<text class="t-lab t-lab-s halo" x="755.0" y="477" text-anchor="middle"><tspan class="t-n">7</tspan>  O vigia do Bob lê s</text>
+<text class="t-sub halo" x="755.0" y="503" text-anchor="middle">na transacção da Alice</text>
+<line class="m m-secret" x1="860" y1="540" x2="392" y2="540" marker-end="url(#ah-s)"/>
+<text class="t-lab t-lab-s halo" x="625.0" y="531" text-anchor="middle"><tspan class="t-n">8</tspan>  Levanta 5 USDC com s</text>
+<text class="t-tag halo" x="656" y="446" text-anchor="start">s fica público</text>
+<rect class="res" x="20" y="578" width="180" height="46" rx="8"/><text class="t-lab" x="110" y="597" text-anchor="middle">Alice</text><text class="t-sub" x="110" y="615" text-anchor="middle">deu 5 USDC · recebeu 500 CKB</text>
+<rect class="res" x="780" y="578" width="180" height="46" rx="8"/><text class="t-lab" x="870" y="597" text-anchor="middle">Bob</text><text class="t-sub" x="870" y="615" text-anchor="middle">deu 500 CKB · recebeu 5 USDC</text></svg></div>
+      <figcaption>As setas cor de âmbar são o caminho do segredo. As tracejadas são leituras: cada lado confirma o lock do outro antes de avançar. As barras verticais mostram quanto tempo o dinheiro de cada um fica preso.</figcaption>
+      <details><summary>Os passos em texto</summary><ol class="steps"><li>A Alice escolhe um segredo s (32 bytes ao acaso) e calcula H = SHA256(s). Só ela conhece s.</li><li>A Alice tranca 5 USDC no Train: pagam ao Bob contra s, ou voltam a ela depois de 2 h.</li><li>O Bob lê o lock no Train e confirma valor, destino e prazo.</li><li>O Bob tranca 500 CKB numa célula htlc-lock: pagam à Alice contra s, ou voltam a ele depois de 1 h.</li><li>A Alice lê a célula e confirma valor, destino e prazo.</li><li>A Alice levanta os 500 CKB. Para isso põe s na transacção, e s fica público.</li><li>O vigia do Bob encontra essa transacção e lê s.</li><li>O Bob levanta os 5 USDC no Train com s.</li></ol></details>
+    </figure>
+    <figure id="fig-ckb" hidden>
+      <div class="scroll"><svg class="dia" viewBox="0 0 980 640" role="img" aria-label="Sequência quando o Bob começa: o Bob escolhe o segredo e tranca CKB com prazo de 2 horas; a Alice confirma e tranca USDC no Train com prazo de 1 hora; o Bob levanta os USDC revelando o segredo; o vigia da Alice lê o segredo no evento do Train e levanta os CKB."><defs><marker id="ah" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse"><path class="ah" d="M0,0 L10,5 L0,10 z"/></marker><marker id="ah-s" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse"><path class="ah-s" d="M0,0 L10,5 L0,10 z"/></marker></defs>
+<rect class="hd hd-who" x="25" y="14" width="170" height="54" rx="8"/>
+<text class="t-name" x="110" y="37" text-anchor="middle">Alice</text>
+<text class="t-sub" x="110" y="56" text-anchor="middle">tem USDC, quer CKB</text>
+<rect class="hd hd-base" x="295" y="14" width="170" height="54" rx="8"/>
+<text class="t-name" x="380" y="37" text-anchor="middle">Train</text>
+<text class="t-sub" x="380" y="56" text-anchor="middle">contrato na Base</text>
+<rect class="hd hd-ckb" x="555" y="14" width="170" height="54" rx="8"/>
+<text class="t-name" x="640" y="37" text-anchor="middle">htlc-lock</text>
+<text class="t-sub" x="640" y="56" text-anchor="middle">célula na CKB</text>
+<rect class="hd hd-who" x="785" y="14" width="170" height="54" rx="8"/>
+<text class="t-name" x="870" y="37" text-anchor="middle">Bob</text>
+<text class="t-sub" x="870" y="56" text-anchor="middle">tem CKB, quer USDC</text>
+<line class="life" x1="110" y1="70" x2="110" y2="570"/>
+<line class="life" x1="380" y1="70" x2="380" y2="570"/>
+<line class="life" x1="640" y1="70" x2="640" y2="570"/>
+<line class="life" x1="870" y1="70" x2="870" y2="570"/>
+<rect class="bar bar-ckb" x="633" y="178" width="14" height="362" rx="3"/><text class="t-bar" x="626" y="359.0" text-anchor="end" transform="rotate(-90 626 359.0)">CKB presos</text>
+<rect class="bar bar-base" x="373" y="300" width="14" height="124" rx="3"/><text class="t-bar" x="366" y="362.0" text-anchor="end" transform="rotate(-90 366 362.0)">USDC presos</text>
+<rect class="note" x="775" y="88" width="190" height="50" rx="8"/><text class="t-lab t-lab-s" x="870" y="108" text-anchor="middle"><tspan class="t-n">1</tspan>  Escolhe o segredo s</text><text class="t-mono" x="870" y="127" text-anchor="middle">H = SHA256(s)</text>
+<line class="m" x1="860" y1="178" x2="652" y2="178" marker-end="url(#ah)"/>
+<text class="t-lab halo" x="755.0" y="169" text-anchor="middle"><tspan class="t-n">2</tspan>  Tranca 500 CKB sob H</text>
+<text class="t-sub halo" x="755.0" y="195" text-anchor="middle">paga à Alice com s · volta ao Bob após 2 h</text>
+<line class="m m-read" x1="120" y1="240" x2="628" y2="240" marker-end="url(#ah)"/>
+<text class="t-lab halo" x="375.0" y="231" text-anchor="middle"><tspan class="t-n">3</tspan>  Lê e confirma a célula</text>
+<text class="t-sub halo" x="375.0" y="257" text-anchor="middle">valor, destino Alice, prazo 2 h</text>
+<line class="m" x1="120" y1="300" x2="368" y2="300" marker-end="url(#ah)"/>
+<text class="t-lab halo" x="245.0" y="291" text-anchor="middle"><tspan class="t-n">4</tspan>  Tranca 5 USDC sob H</text>
+<text class="t-sub halo" x="245.0" y="317" text-anchor="middle">paga ao Bob com s · volta à Alice após 1 h</text>
+<line class="m m-read" x1="860" y1="362" x2="392" y2="362" marker-end="url(#ah)"/>
+<text class="t-lab halo" x="625.0" y="353" text-anchor="middle"><tspan class="t-n">5</tspan>  Lê e confirma o lock</text>
+<text class="t-sub halo" x="625.0" y="379" text-anchor="middle">valor, destino Bob, prazo 1 h</text>
+<line class="m m-secret" x1="860" y1="424" x2="392" y2="424" marker-end="url(#ah-s)"/>
+<text class="t-lab t-lab-s halo" x="625.0" y="415" text-anchor="middle"><tspan class="t-n">6</tspan>  Levanta 5 USDC revelando s</text>
+<text class="t-sub halo" x="625.0" y="441" text-anchor="middle">o segredo fica no evento do Train</text>
+<line class="m m-secret m-read" x1="370" y1="486" x2="122" y2="486" marker-end="url(#ah-s)"/>
+<text class="t-lab t-lab-s halo" x="245.0" y="477" text-anchor="middle"><tspan class="t-n">7</tspan>  O vigia da Alice lê s</text>
+<text class="t-sub halo" x="245.0" y="503" text-anchor="middle">no evento UserRedeemed</text>
+<line class="m m-secret" x1="120" y1="540" x2="628" y2="540" marker-end="url(#ah-s)"/>
+<text class="t-lab t-lab-s halo" x="375.0" y="531" text-anchor="middle"><tspan class="t-n">8</tspan>  Levanta 500 CKB com s</text>
+<text class="t-tag halo" x="364" y="446" text-anchor="end">s fica público</text>
+<rect class="res" x="20" y="578" width="180" height="46" rx="8"/><text class="t-lab" x="110" y="597" text-anchor="middle">Alice</text><text class="t-sub" x="110" y="615" text-anchor="middle">deu 5 USDC · recebeu 500 CKB</text>
+<rect class="res" x="780" y="578" width="180" height="46" rx="8"/><text class="t-lab" x="870" y="597" text-anchor="middle">Bob</text><text class="t-sub" x="870" y="615" text-anchor="middle">deu 500 CKB · recebeu 5 USDC</text></svg></div>
+      <figcaption>Ao contrário: o Bob escolhe o segredo e revela-o ao levantar os USDC. O Train guarda o segredo e publica-o num evento, e é aí que a Alice o vai buscar.</figcaption>
+      <details><summary>Os passos em texto</summary><ol class="steps"><li>O Bob escolhe o segredo s e calcula H = SHA256(s).</li><li>O Bob tranca 500 CKB no htlc-lock, com prazo de 2 h.</li><li>A Alice lê a célula e confirma.</li><li>A Alice tranca 5 USDC no Train, com prazo de 1 h.</li><li>O Bob lê o lock no Train e confirma.</li><li>O Bob levanta os 5 USDC revelando s. O Train guarda s e publica-o num evento.</li><li>O vigia da Alice lê s nesse evento.</li><li>A Alice levanta os 500 CKB com s.</li></ol></details>
+    </figure>
+  </section>
+
+  <section>
+    <h2>Porque é que os prazos são diferentes</h2>
+    <figure>
+      <div class="scroll"><svg class="dia" viewBox="0 0 980 300" role="img" aria-label="Linha do tempo: os USDC da Alice ficam presos até às 2 horas, os CKB do Bob até à 1 hora. A Alice tem de levantar os CKB antes da 1 hora; a partir daí o Bob tem pelo menos 1 hora para usar o segredo nos USDC."><line class="axis" x1="210" y1="236" x2="952.5" y2="236"/><line class="axis" x1="210" y1="231" x2="210" y2="241"/><text class="t-sub" x="210" y="258" text-anchor="middle">0</text><line class="axis" x1="375.0" y1="231" x2="375.0" y2="241"/><text class="t-sub" x="375.0" y="258" text-anchor="middle">30 min</text><line class="axis" x1="540" y1="231" x2="540" y2="241"/><text class="t-sub" x="540" y="258" text-anchor="middle">1 h</text><line class="axis" x1="705.0" y1="231" x2="705.0" y2="241"/><text class="t-sub" x="705.0" y="258" text-anchor="middle">1 h 30</text><line class="axis" x1="870" y1="231" x2="870" y2="241"/><text class="t-sub" x="870" y="258" text-anchor="middle">2 h</text><text class="t-sub" x="210" y="280" text-anchor="start">tempo desde o primeiro lock</text><line class="dl dl-ckb" x1="540" y1="26" x2="540" y2="228"/><text class="t-tag t-ckb" x="540" y="18" text-anchor="middle">prazo da CKB</text><line class="dl dl-base" x1="870" y1="26" x2="870" y2="228"/><text class="t-tag t-base" x="870" y="18" text-anchor="middle">prazo do Train</text><text class="t-lab" x="16" y="74">USDC da Alice</text><text class="t-sub" x="16" y="92">no Train</text><rect class="bar bar-base" x="210" y="64" width="660" height="22" rx="4"/><text class="t-sub" x="878" y="80">volta à Alice</text><text class="t-lab" x="16" y="154">CKB do Bob</text><text class="t-sub" x="16" y="172">no htlc-lock</text><rect class="bar bar-ckb" x="236.4" y="144" width="303.6" height="22" rx="4"/><text class="t-sub" x="548" y="160">volta ao Bob</text><path class="br br-s" d="M236.4,184 v8 H534 v-8"/><text class="t-lab t-lab-s" x="388.2" y="210" text-anchor="middle">a Alice levanta os CKB aqui</text><path class="br br-s" d="M546,104 v8 H870 v-8"/><text class="t-lab t-lab-s" x="705.0" y="130" text-anchor="middle">o Bob ainda tem esta janela</text></svg></div>
+      <figcaption>Quem conhece o segredo tranca primeiro e com o prazo mais longo. A Alice tem de levantar os CKB antes de acabar o prazo da CKB. Mesmo que o faça no último minuto, o Bob ainda tem pelo menos 1 hora para usar o segredo nos USDC. O script recusa trancar se esta margem for menor do que 20 minutos.</figcaption>
+    </figure>
+  </section>
+
+  <section>
+    <h2>O que acontece em cada caso</h2>
+    <div class="tw"><table class=""><thead><tr><th>Situação</th><th>Alice</th><th>Bob</th></tr></thead><tbody><tr><td><strong>Tudo corre bem</strong></td><td>dá 5 USDC, recebe 500 CKB</td><td>dá 500 CKB, recebe 5 USDC</td></tr><tr><td><strong>A Alice nunca revela o segredo</strong></td><td>recupera os USDC às 2 h</td><td>recupera os CKB à 1 h</td></tr><tr><td><strong>O Bob nunca tranca os CKB</strong></td><td>recupera os USDC às 2 h, ou antes se o Bob cancelar</td><td>nada muda</td></tr><tr class="warn"><td><strong>A Alice revela o segredo depois de 1 h</strong></td><td>pode ficar sem nada: o Bob já pode ter recuperado os CKB e usar o segredo nos USDC</td><td>pode ficar com os dois lados</td></tr></tbody></table></div>
+    <p>A última linha é a regra para quem guarda o segredo: revelar só com folga antes do prazo do outro lado. O lock não pode impedir isto; tem de ser a aplicação de quem revela a recusar fazê-lo tarde.</p>
+  </section>
+
+  <section>
+    <h2>O que o lock da CKB verifica</h2>
+    <figure>
+      <div class="scroll"><svg class="dia" viewBox="0 0 980 330" role="img" aria-label="O que o htlc-lock verifica: com um segredo de 32 bytes que dá H, o dinheiro vai para o destinatário; sem segredo e depois do prazo, volta ao remetente; nos dois casos a saída na mesma posição tem de ter o lock do destino, o mesmo tipo, os mesmos dados e quase toda a capacidade."><defs><marker id="ah" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse"><path class="ah" d="M0,0 L10,5 L0,10 z"/></marker><marker id="ah-s" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse"><path class="ah-s" d="M0,0 L10,5 L0,10 z"/></marker></defs><rect class="hd hd-ckb" x="16" y="60" width="230" height="210" rx="10"/><text class="t-name" x="36" y="92">Célula htlc-lock</text><text class="t-mono" x="36" y="124">H</text><text class="t-sub" x="132" y="124">SHA256 do segredo</text><text class="t-mono" x="36" y="152">destinatário</text><text class="t-sub" x="132" y="152">lock da Alice</text><text class="t-mono" x="36" y="180">remetente</text><text class="t-sub" x="132" y="180">lock do Bob</text><text class="t-mono" x="36" y="208">prazo</text><text class="t-sub" x="132" y="208">data, em segundos</text><text class="t-mono" x="36" y="236">taxa máx.</text><text class="t-sub" x="132" y="236">até 1 CKB</text><rect class="path-s" x="330" y="40" width="290" height="100" rx="10"/><text class="t-name" x="350" y="68">Levantamento</text><text class="t-sub t-dark" x="350" y="92">o testemunho traz p, com 32 bytes</text><text class="t-sub t-dark" x="350" y="111">SHA256(p) = H</text><text class="t-sub t-dark" x="350" y="130">destino: o destinatário</text><line class="m" x1="248" y1="165" x2="324" y2="90" marker-end="url(#ah)"/><line class="m" x1="622" y1="90" x2="694" y2="165" marker-end="url(#ah)"/><rect class="path" x="330" y="190" width="290" height="100" rx="10"/><text class="t-name" x="350" y="218">Devolução</text><text class="t-sub t-dark" x="350" y="242">o testemunho vem vazio</text><text class="t-sub t-dark" x="350" y="261">since ≥ prazo, em cada entrada</text><text class="t-sub t-dark" x="350" y="280">destino: o remetente</text><line class="m" x1="248" y1="165" x2="324" y2="240" marker-end="url(#ah)"/><line class="m" x1="622" y1="240" x2="694" y2="165" marker-end="url(#ah)"/><rect class="res" x="700" y="80" width="264" height="170" rx="10"/><text class="t-name" x="718" y="108">Saída na mesma posição</text><text class="t-sub t-dark" x="718" y="134">tem o lock do destino</text><text class="t-sub t-dark" x="718" y="155">o mesmo tipo e os mesmos dados</text><text class="t-sub t-dark" x="718" y="176">capacidade ≥ entrada menos</text><text class="t-sub t-dark" x="718" y="197">a taxa máxima</text><text class="t-lab t-ok" x="718" y="232">tudo certo: aceite</text><text class="t-sub" x="490" y="318" text-anchor="middle">qualquer falha: recusada, com o código de erro da regra</text></svg></div>
+      <figcaption>Cada célula trancada tem de ter a sua própria saída, na mesma posição da transacção. Assim, duas células nunca podem ser pagas com uma só saída, e ninguém consegue pagar uma migalha ao destinatário e ficar com o resto.</figcaption>
+    </figure>
+  </section>
+
+  <section>
+    <h2>Tentativas de roubo, na testnet</h2>
+    <p>Corridas contra o lock publicado, com o verificador completo do nó e sem enviar nada. Cada tentativa foi recusada pelo próprio lock, e cada versão honesta foi aceite.</p>
+    <div class="tw"><table class=""><thead><tr><th>Tentativa</th><th>Resultado</th></tr></thead><tbody><tr><td>Levantar com um segredo errado</td><td><span class="pill pill-no">recusada</span> <code>código 8</code></td></tr><tr><td>Levantar para outra pessoa</td><td><span class="pill pill-no">recusada</span> <code>código 11</code></td></tr><tr><td>100 CKB para a Alice e o resto para outra pessoa</td><td><span class="pill pill-no">recusada</span> <code>código 14</code></td></tr><tr><td>Deixar mais de 0,01 CKB de taxa</td><td><span class="pill pill-no">recusada</span> <code>código 14</code></td></tr><tr><td>Devolver um segundo antes do prazo</td><td><span class="pill pill-no">recusada</span> <code>código 9</code></td></tr><tr><td>Devolver à Alice em vez do Bob</td><td><span class="pill pill-no">recusada</span> <code>código 11</code></td></tr><tr><td>Prazo medido em blocos em vez de tempo</td><td><span class="pill pill-no">recusada</span> <code>código 9</code></td></tr><tr><td>Levantamento e devolução honestos</td><td><span class="pill pill-ok">aceites</span></td></tr></tbody></table></div>
+  </section>
+
+  <section>
+    <h2>O que ficou provado</h2>
+    <ul class="stats">
+      <li><b>13</b><span>testes na VM da CKB</span></li>
+      <li><b>18 / 18</b><span>verificações desligadas, todas apanhadas</span></li>
+      <li><b>9 / 9</b><span>tentativas na testnet como esperado</span></li>
+      <li><b>3 / 3</b><span>swaps com USDC na Base Sepolia</span></li>
+    </ul>
+    <ul class="proof"><li><span>Lock publicado na testnet da CKB</span><span><a href="https://testnet.explorer.nervos.org/transaction/0x29379a658315c050bf4612dd671f986afc2c133ad2c6e14ef7e67ac9d6ae82b2" target="_blank" rel="noopener">transacção</a> <code>0x29379a65…82b2</code></span></li><li><span>Alice começa: tranca os USDC</span><span><a href="https://sepolia.basescan.org/tx/0x829f5bd58f78e4a89d5b5dc788c8cb2a2ddb11594eabf3b89b1a8fbfb7d946be" target="_blank" rel="noopener">Base Sepolia</a> <code>0x829f5bd5…46be</code></span></li><li><span>Alice começa: levanta os CKB</span><span><a href="https://testnet.explorer.nervos.org/transaction/0xcb3603d2df48511558187402b6bfbfb2e3df6a454b49d3bc0e1f42e9163546b4" target="_blank" rel="noopener">CKB testnet</a> <code>0xcb3603d2…46b4</code></span></li><li><span>Alice começa: o Bob levanta os USDC</span><span><a href="https://sepolia.basescan.org/tx/0xacc196de093c1d900eab583039106c0e5bd575e3d81e0e504e36390b0eb25edc" target="_blank" rel="noopener">Base Sepolia</a> <code>0xacc196de…5edc</code></span></li><li><span>Bob começa: levanta os USDC</span><span><a href="https://sepolia.basescan.org/tx/0x74fa3dbdfd6219456774787a7a205d916c22570fa5afca82198c33bff12a33c2" target="_blank" rel="noopener">Base Sepolia</a> <code>0x74fa3dbd…33c2</code></span></li><li><span>Bob começa: a Alice levanta os CKB</span><span><a href="https://testnet.explorer.nervos.org/transaction/0x98616d4501c162160e4b6e91d08f5e155a898cbe0bb2558d4caa7b23f109ef20" target="_blank" rel="noopener">CKB testnet</a> <code>0x98616d45…ef20</code></span></li><li><span>Ninguém revela: o Bob recupera os CKB</span><span><a href="https://testnet.explorer.nervos.org/transaction/0xe2fdaf79c1dbb553f57e7d60dd64d902791c465cd6379afd1bad7c1b160d9506" target="_blank" rel="noopener">CKB testnet</a> <code>0xe2fdaf79…9506</code></span></li><li><span>Ninguém revela: a Alice recupera os USDC</span><span><a href="https://sepolia.basescan.org/tx/0x524d95293023e8bc7d1a4791db891f5e92a49466bcae97fcb4783a06d570ad9d" target="_blank" rel="noopener">Base Sepolia</a> <code>0x524d9529…ad9d</code></span></li></ul>
+    <p>Os mesmos três casos correram também na testnet da Tempo, com PathUSD, e numa cópia local da Base Sepolia. Tudo com dinheiro de teste.</p>
+  </section>
+
+  <section>
+    <h2>Um protótipo</h2>
+    <p>Existe um protótipo a correr na testnet. Quem pretender utilizá-lo deve ter em consideração todas as questões de segurança necessárias para garantir a segurança de todas as funcionalidades e dos fundos: isso não está garantido neste protótipo.</p>
+  </section>
+</main>
+
+<script>
+document.querySelectorAll('.tabs button').forEach(function (b) {
+  b.addEventListener('click', function () {
+    document.querySelectorAll('.tabs button').forEach(function (o) {
+      var on = o === b;
+      o.setAttribute('aria-pressed', on ? 'true' : 'false');
+      document.getElementById(o.dataset.show).hidden = !on;
+    });
+  });
+});
+</script>
+</body></html>

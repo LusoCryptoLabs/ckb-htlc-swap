@@ -1,0 +1,23 @@
+{
+  "name": "ckb-usdc-swap-book",
+  "private": true,
+  "type": "module",
+  "description": "Order book for CKB <-> USDC hashlock swaps (testnet)",
+  "scripts": {
+    "build": "vite build web --outDir ../dist --emptyOutDir",
+    "dev": "vite web",
+    "start": "node server/server.mjs",
+    "test": "node --test test/swaplib.test.mjs test/btclib.test.mjs test/i18n.test.mjs test/server-limits.test.mjs test/server-limits-from.test.mjs test/server-limits-day.test.mjs test/maintenance-page.test.mjs"
+  },
+  "dependencies": {
+    "@ckb-ccc/core": "^1.23.0",
+    "@noble/curves": "^2.4.0",
+    "@noble/hashes": "^2.0.1",
+    "bitcoinjs-lib": "^7.0.2",
+    "cellula-sdk": "^0.3.12",
+    "ethers": "^6.17.0"
+  },
+  "devDependencies": {
+    "vite": "^6.4.5"
+  }
+}
